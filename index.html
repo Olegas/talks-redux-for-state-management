@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Redux — управление состоянием React-приложений</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=792, user-scalable=no">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<base href="node_modules/shower-ribbon/" />
+	<link rel="stylesheet" href="styles/screen.css">
+	<style>
+		.slide>div.demoRect {
+			position: absolute;
+			outline: 1px solid red;
+			padding: 0;
+			background: #477FB7;
+			opacity: 0.3;
+		}
+		.full .slide:not(.cover):not(.shout):before,
+		.full .slide.cover.titleslide:before {
+			content: "";
+			display: block;
+			width: 75px;
+			height: 75px;
+			position: absolute;
+			right: 10px;
+			bottom: 15px;
+			background: url(../../images/yarfrontend.svg) no-repeat;
+			background-size: cover;
+		}
+		mark.important{
+			background:#C00;
+			color:#FFF
+		}
+		.about {
+			text-align: right;
+			clear: both;
+		}
+		.titleslide h2, .titleslide p {
+			color: black;
+		}
+		.qr {
+			float: right;
+		}
+
+		code {
+			font-weight: bolder;
+		}
+
+		mark[class^="code-"] {
+			padding: 0;
+			background: none;
+			font-weight: bolder;
+		}
+
+		mark.code-keyword {
+			color: #0B1D8D;
+		}
+		mark.code-reserved {
+			color: #962588;
+		}
+		mark.code-property {
+			color: #968B5B;
+		}
+		mark.code-variable {
+			color: #649595;
+		}
+		mark.code-string {
+			color: #008F28;
+		}
+		mark.code-value {
+			color: #1C39F6;
+		}
+	</style>
+</head>
+<body class="list">
+	<!--
+		Debug class on <body> enables
+		cyan grid on slides
+		-->
+	<header class="caption">
+		<h1>Redux —<br /> управление состоянием React-приложений</h1>
+		<p><a href="mailto:oleg@elifantiev.ru">Олег Елифантьев</a></p>
+	</header>
+
+	<section class="slide titleslide"><div>
+		<h2>Redux &mdash;<br /> управление состоянием React-приложений</h2>
+		<p>Yaroslavl Frontend Meetup #10<br />Олег Елифантьев, @oelifantiev</p>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Мотивация</h2>
+		<ul>
+			<li class="next">Усложнение frontend-приложений</li>
+			<li class="next">Непредсказуемые изменения модели данных</li>
+			<li class="next">Асинхронные изменения, гонки</li>
+		</ul>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Redux to the rescue!</h2>
+		<p>by Dan Abramov<br />
+			@dan_abramov<br />
+			@gaearon (GitHub)
+		</p>
+		<p>Документация: <a href="http://rackt.org/redux/index.html">http://rackt.org/redux/index.html</a></p>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>3 основных принципа</h2>
+		<ol>
+			<li class="next">Единый &#8222;источник правды&#8220;
+				<ul>
+					<li class="next">Все состояние в одном единственном месте &mdash; Store</li>
+				</ul>
+			</li>
+			<li class="next">Состояние &mdash; только на чтение
+				<ul>
+					<li class="next">Единственный способ поменять состояние &mdash; Action (действие)</li>
+				</ul>
+			</li>
+			<li class="next">Мутации состояния выполняются чистыми функциями
+				<ul>
+					<li class="next">Действие приводит к порождению нового состояния.
+						Описывается &#8222;редьюсерами&#8220; (reducers)</li>
+				</ul>
+			</li>
+		</ol>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Чистые (pure) функции</h2>
+		<p>Это функции без side-эффектов. Они не меняют ничего вокруг, не зависят ни от чего, кроме своих аргументов.</p>
+		<ul>
+			<li class="next"><code>sin(x)</code> &mdash; чистая функция</li>
+			<li class="next"><code>random()</code> &mdash; нет</li>
+			<li class="next"><code>printf()</code> &mdash; <span class="next">нет</span></li>
+		</ul>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Действие (Action)</h2>
+		<p>Простейший объект с полем type и, возможно, дополнительными данными</p>
+		<pre><code>{
+	type: 'ADD_ITEM',
+    itemData: ...
+}</code></pre>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Редьюсер (reducer)</h2>
+		<p>Функция, принимающая на вход предыдущее состояние и действие.
+			Должна вернуть новое состояние (а не измененное старое!)</p>
+		<pre><code>function reducer(state, action) {
+	if (action.type == 'ADD_ITEM')
+		return /* new state */;
+	return state
+}</code></pre>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Схема работы</h2>
+		<ol>
+			<li class="next">Создается Store и редьюсеры, возможно, инициализируется начальными данными</li>
+			<li class="next">Если нужно мутировать состояние &mdash; диспетчеризуется действие (Action)</li>
+			<li class="next">Action попадает в reducer, который создает <b>новое</b>
+				состояние из старого мутируя его по данным из Action</li>
+			<li class="next">Ранее подписавшиеся &#8222;заинтересованые лица&#8220; получают из Store извещение об изменении</li>
+		</ol>
+	</div></section>
+
+	<section class="slide shout grow"><div>
+		<h2>Live Coding Time!</h2>
+	</div></section>
+
+
+	<section class="slide">
+		<div>
+			<h2>Спасибо за внимание!</h2>
+			<img class="qr" src="http://qrcoder.ru/code/?http%3A%2F%2Fbit.ly%2Fredux-state&8&0" />
+			<p>Доп. материалы: <a href="http://bit.ly/redux-state">http://bit.ly/redux-state</a><br />Вопросы?</p>
+			<p class="about">
+				Yaroslavl Frontend Meetup #10<br />
+				Елифантьев Олег, Тензор<br />
+				<a href="https://twitter.com/oelifantiev">@oelifantiev</a>
+			</p>
+		</div>
+	</section>
+
+	<p class="badge"><a href="https://github.com/Olegas/talks-improve-rendering-speed">Fork me on Github</a></p>
+	<!--
+		To hide progress bar from entire presentation
+		just remove “progress” element.
+		-->
+	<div class="progress"><div></div></div>
+	<script src="../shower-core/shower.min.js"></script>
+</body>
+</html>
